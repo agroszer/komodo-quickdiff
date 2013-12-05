@@ -1,2 +1,3 @@
-content quickdiff content/quickdiff
+content quickdiff jar:quickdiff.jar!/content/ xpcnativewrappers=yes
+
 overlay chrome://komodo/content/komodo.xul chrome://quickdiff/content/overlay.xul
