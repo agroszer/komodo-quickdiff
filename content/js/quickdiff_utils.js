@@ -11,16 +11,16 @@
 */
 (function(global) {
 	"use strict";
-	
+
 	// change this to print debug stuff to pystderr.log
-	var debugging = false;
-	
-	if(debugging) {
-		window.openDialog("chrome://global/content/console.xul", "ErrorConsole");
-	}
-	
+	var debugging = true;
+
+	//if(debugging) {
+	//	window.openDialog("chrome://global/content/console.xul", "ErrorConsole");
+	//}
+
 	global.QuickdiffUtils = {
-		
+
 		dbg: debugging ? function(msg, dump) {
 			if(dump!==undefined) {
 				try {
@@ -35,7 +35,7 @@
 			}
 			ko.logging.getLogger("extensions.quickdiff").warn(msg);
 		} : function() {},
-		
+
 		/**
 		 * runs the specified `cmd` shell command asyncronously, calling callback(retval, stdout) when finished.
 		*/
@@ -47,7 +47,7 @@
 				waitTime = 50, // milliseconds
 				finishedLoop
 			;
-			
+
 			finishedLoop = function() {
 				var retval, out;
 				try {
@@ -65,10 +65,10 @@
 				out = process.getStdout();
 				callback(retval, out);
 			};
-			
+
 			window.setTimeout(finishedLoop, waitTime);
 		},
-		
+
 		/**
 		 * Parses a unified diff output. Returns the diff as an array of changes (change "hunks"), such as:
 		 *  {
@@ -103,14 +103,14 @@
 					}
 				}
 			;
-			
-			
+
+
 			// expect to have a diff of one file, so discard any lines regarding the file name
-			
+
 			while(/^(?:Index:|===|---|\+\+\+)/.test(diffLines[0])) {
 				diffLines.shift();
 			}
-			
+
 			while(diffLines.length) {
 				lineNumber++;
 				line = diffLines.shift();
@@ -131,11 +131,11 @@
 						if(!match) {
 							window.alert("Error[2] reading diff, line: " + line);
 						}
-				
+
 						hunk = { firstLine: lineNumber, '+': [], '-': [] };
-						
+
 						processLine(match[1], match[2]);
-						
+
 						while(true) {
 							match = reChanges.exec(diffLines[0]);
 							if(!match) {
@@ -145,7 +145,7 @@
 							processLine(match[1], match[2]);
 							lineNumber++;
 						}
-	
+
 						// calculate lastLine and type
 						if(hunk['+'].length === 0) {
 							// deletions only
@@ -161,7 +161,7 @@
 								hunk.type = 'change';
 							}
 						}
-	
+
 						hunks.push(hunk);
 						break;
 					case '\\':
@@ -186,6 +186,6 @@
 			;
 			return tmpFileSvc.makeTempName(suffix);
 		}
-		
+
 	};
 }(this));
