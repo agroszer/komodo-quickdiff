@@ -33,7 +33,7 @@ function quickdiffFactory(filename) {
 		},
 		reRemoteFile = /^sftp:\/\/([^\/]+)(\/.*)/,
 		asLocal = function() {
-			
+
 			this._runCommand = function(cmd) {
 				var
 					runSvc = Components.classes["@activestate.com/koRunService;1"].createInstance(Components.interfaces.koIRunService),
@@ -41,7 +41,7 @@ function quickdiffFactory(filename) {
 					retval = process.wait(-1),
 					ret
 				;
-				
+
 				ret = process.getStdout();
 				QuickdiffUtils.dbg("_asLocal _runCommand", {
 					cmd: cmd,
@@ -51,9 +51,9 @@ function quickdiffFactory(filename) {
 				});
 				return ret;
 			};
-			
+
 			this.getBaseCmd = function() { return this._getBaseCmd(); };
-			
+
 			this.accept = function() {
 				var match = reRemoteFile.exec(filename);
 				if(match) {
@@ -71,10 +71,10 @@ function quickdiffFactory(filename) {
 			this.getAgainstTitle = function() { return this._getAgainstTitle() + "."; };
 			return this;
 		},
-		
+
 		/////////////////////////////
 		asRemote = function() {
-			
+
 			this._runCommand = function(cmd) {
 
 				var
@@ -86,7 +86,7 @@ function quickdiffFactory(filename) {
 					stderr = {}, // not used
 					retval // not used
 				;
-				
+
 				if(conn) {
 						// Ensure it's a SSH connection
 						conn.QueryInterface(Components.interfaces.koISSHConnection);
@@ -103,7 +103,7 @@ function quickdiffFactory(filename) {
 				});
 				return stdout.value;
 			};
-			
+
 			this.getBaseCmd = function() {
 				var
 					baseTempFilename = QuickdiffUtils.tempName("quickdiff-svn-base"),
@@ -112,7 +112,7 @@ function quickdiffFactory(filename) {
 				os.writefile(baseTempFilename, baseTempContents);
 				return "cat " + shellEsc(baseTempFilename);
 			};
-			
+
 			this.accept = function() {
 				var match = reRemoteFile.exec(filename);
 				if(match) {
@@ -130,7 +130,7 @@ function quickdiffFactory(filename) {
 			this.getAgainstTitle = function() { return this._getAgainstTitle() + " (on server " + this.remoteServer + ")."; };
 			return this;
 		},
-		
+
 		asFile = function() {
 		  this._getAgainstTitle = function() { return "Diffing against saved file"; };
 			this._acceptType = function() { return true; };
@@ -139,7 +139,7 @@ function quickdiffFactory(filename) {
 			};
 		  return this;
 		},
-		
+
 		asGit = function() {
 			this._acceptType = function() {
 				var
@@ -153,7 +153,7 @@ function quickdiffFactory(filename) {
 			};
 		  return this;
 		},
-		
+
 		asSvn = function() {
 			this._acceptType = function() {
 				var
@@ -167,10 +167,10 @@ function quickdiffFactory(filename) {
 			};
 		  return this;
 		},
-		
+
 		providers = []
-	;		
-	
+	;
+
 	// build prototypes for each type
 	providers.push(function() {});
 	providers.push(function() {});
@@ -178,18 +178,18 @@ function quickdiffFactory(filename) {
 	providers.push(function() {});
 	providers.push(function() {});
 	providers.push(function() {});
-	
+
 	asLocal.call( providers[0].prototype);
 	asLocal.call( providers[1].prototype);
 	asLocal.call( providers[2].prototype);
 	asRemote.call(providers[3].prototype);
 	asRemote.call(providers[4].prototype);
 	asRemote.call(providers[5].prototype);
-	
+
 	asGit.call( providers[0].prototype);
 	asSvn.call( providers[1].prototype);
 	asFile.call(providers[2].prototype);
-	
+
 	asGit.call( providers[3].prototype);
 	asSvn.call( providers[4].prototype);
 	asFile.call(providers[5].prototype);
@@ -200,7 +200,6 @@ function quickdiffFactory(filename) {
 
 		try {
 			provider = new providers[i]();
-			provider.accept();
 			if(provider.accept()) {
 				QuickdiffUtils.dbg("provider chosen: " + provider.getAgainstTitle());
 				return provider;
@@ -212,4 +211,4 @@ function quickdiffFactory(filename) {
 	QuickdiffUtils.dbg("no diff provider found");
 	// shouldn't reach this line
 	return null;
-}	
+}
