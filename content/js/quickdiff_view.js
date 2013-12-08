@@ -176,12 +176,18 @@ if(osType !== 'Linux' && osType !== 'Darwin') {
 		var
 			self = this,
 			filenameWorkingCopy = QuickdiffUtils.tempName("quickdiff-working"),
-			osSvc = Components.classes['@activestate.com/koOs;1'].getService(Components.interfaces.koIOs)
+			osSvc = Components.classes['@activestate.com/koOs;1']
+				.getService(Components.interfaces.koIOs),
+			fileSvc = Components.classes["@activestate.com/koFileService;1"]
+				.getService(Components.interfaces.koIFileService),
+			logger = ko.logging.getLogger("extensions.quickdiff")
 		;
 
 		osSvc.writefile(filenameWorkingCopy, self.view.scimoz.text);
 
-		QuickdiffUtils.runAsync(self._diffHandler.getBaseCmd() + " | diff -u - " + filenameWorkingCopy, function(retval, output) {
+		QuickdiffUtils.runAsync(
+			self._diffHandler.getBaseCmd() + " | diff -u - " + filenameWorkingCopy,
+			function(retval, output) {
 
 			if(output === '') {
 				self._clearAllMarkers();
@@ -192,7 +198,7 @@ if(osType !== 'Linux' && osType !== 'Darwin') {
 					callback();
 				}
 			}
-			// TODO: remove temp file(s)
+			fileSvc.deleteTempFile(filenameWorkingCopy, true);
 			return false;
 		});
 	};
